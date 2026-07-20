@@ -6,6 +6,7 @@
 
 import { audioMap } from './audioMap.js';
 import { VOICE_ID, VOICE_MODEL, VOICE_SETTINGS } from '../config/audio.config.js';
+import { toSpokenText } from './speechText.js';
 
 const BASE_URL = import.meta.env.BASE_URL || '/';
 
@@ -60,7 +61,7 @@ export async function getAudioUrl(segment) {
           'xi-api-key': apiKey,
         },
         body: JSON.stringify({
-          text,
+          text: toSpokenText(text),
           model_id: VOICE_MODEL,
           voice_settings: settings,
         }),

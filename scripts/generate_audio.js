@@ -3,12 +3,19 @@
 // Pre-generates all known narration phrases as .mp3 files into
 // public/assets/audio/ and writes src/utils/audioMap.js.
 //
+// Fraction notation (e.g. "7/10") is spoken-normalized to "7 by 10" via
+// toSpokenText() before being sent to ElevenLabs, so narration reads
+// fractions the way they're taught ("seven by ten") instead of literally
+// ("seven slash ten"). Filenames and audioMap.js keys still use the
+// original, unmodified phrase text — only the TTS input changes.
+//
 // Usage: npm run generate-audio
 // Requires: VITE_ELEVENLABS_API_KEY in .env.local
 
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { toSpokenText } from '../src/utils/speechText.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -140,7 +147,7 @@ async function generateAudio(text, style) {
     const filename = `audio_${slugify(cliText)}.mp3`;
     const filePath = path.join(AUDIO_DIR, filename);
     console.log(`🎙  Generating single statement (${style}): "${cliText.slice(0, 60)}…"`);
-    const buf = await generateAudio(cliText, style);
+    const buf = await generateAudio(toSpokenText(cliText), style);
     fs.writeFileSync(filePath, buf);
     console.log(`✅  Saved: public/assets/audio/${filename}`);
     return;
@@ -155,7 +162,7 @@ async function generateAudio(text, style) {
     const filename = `audio_${slugify(phrase.text)}_${index}.mp3`;
     const filePath = path.join(AUDIO_DIR, filename);
     console.log(`🎙  Generating [${index}] ${phrase.style}: "${phrase.text.slice(0, 60)}…"`);
-    const buf = await generateAudio(phrase.text, phrase.style);
+    const buf = await generateAudio(toSpokenText(phrase.text), phrase.style);
     fs.writeFileSync(filePath, buf);
     console.log(`✅  Saved: public/assets/audio/${filename}`);
     console.log(`ℹ️   This single run does NOT rewrite audioMap.js — run without flags to regenerate the full map.`);
@@ -181,7 +188,7 @@ async function generateAudio(text, style) {
 
     try {
       process.stdout.write(`🎙  Generating [${i + 1}/${phrases.length}] ${style}: "${text.slice(0, 48)}…" `);
-      const buf = await generateAudio(text, style);
+      const buf = await generateAudio(toSpokenText(text), style);
       fs.writeFileSync(filePath, buf);
       console.log(`✓ ${filename}`);
       generated++;

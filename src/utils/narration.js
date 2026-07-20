@@ -4,6 +4,11 @@
 // "style" tag. Every string here MUST exactly match the on-screen
 // text shown in UI components (1:1 parity) and the `phrases` array
 // in scripts/generate_audio.js, so audioMap.js lookups succeed.
+//
+// Fraction notation (e.g. "7/10") stays as-is here — it's converted to a
+// spoken form ("7 by 10") only at the point the text is sent to ElevenLabs,
+// via speechText.js's toSpokenText(). Don't hand-edit fractions into words
+// in these strings; it would break the on-screen/audioMap text parity.
 
 export const say       = (text) => ({ text, style: 'statement' });
 export const ask       = (text) => ({ text, style: 'question' });
